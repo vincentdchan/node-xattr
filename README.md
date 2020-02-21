@@ -1,7 +1,7 @@
 
 # node-xattr
 
-A library to manipulate xattr on macOS.
+A library to manipulate xattr on macOS with Typescript support.
 APIs provided by this library are similar to node's fs module.
 
 - [__getxattr__](#getxattr)

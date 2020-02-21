@@ -8,7 +8,7 @@ const {
   getXattr,
   listXattr,
   removeXattr,
-} = require('../main');
+} = require('..');
 const { writeFileSync, unlinkSync } = require('fs');
 
 const TestFile = '/tmp/node-attr-test-file.txt';

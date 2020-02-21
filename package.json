@@ -1,7 +1,8 @@
 {
   "name": "node-xattr",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "main": "main.js",
+  "types": "./main.d.ts",
   "author": "Zhong",
   "license": "MIT",
   "dependencies": {
