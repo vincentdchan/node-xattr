@@ -13,19 +13,21 @@ APIs provided by this library are similar to node's fs module.
 
 # What's xattr
 
-> The xattr command can be used to display, modify or remove the extended attributes of one or more files, including directories and symbolic links.  Extended
-> attributes are arbitrary metadata stored with a file, but separate from the filesystem attributes (such as modification time or file size).  The metadata is
-> often a null-terminated UTF-8 string, but can also be arbitrary binary data.
-
-> One or more files may be specified on the command line.  For the first two forms of the command, when there are more than one file, the file name is displayed
-
-> along with the actual results.  When only one file is specified, the display of the file name is usually suppressed (unless the -v option described below, is also specified).
+> Extended attributes are arbitrary metadata stored with a file, but separate from the filesystem attributes (such as modification time or file size). The metadata is often a null-terminated UTF-8 string, but can also be arbitrary binary data.
 
 # Install
 
 ```sh
 $ yarn add node-xattr
 ```
+
+# When to use the sync version
+
+Technically, the sync version would be a little faster. Because the async version waits for a queue to schedule.
+Also, it's realtime.
+The disadvantage of the sync version is that it will probably block the process. So DO NOT use sync version in 
+some UI process(such as the renderer process of Electron).
+The best scenario to use sync version is in background worker/process/thread.
 
 # setxattr
 
@@ -142,7 +144,7 @@ node-xattr support Promise API in `promises` namespace;
 const { promises } = require('node-xattr');
 ```
 
-You can juse use Promise API just like sync veriosn above:
+You can just use Promise API just like sync version above:
 
 ```js
 await promises.setXattr(path, name, value);
