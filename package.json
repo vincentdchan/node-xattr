@@ -1,0 +1,14 @@
+{
+  "name": "node-xattr",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Zhong",
+  "license": "MIT",
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "node-addon-api": "^2.0.0"
+  },
+  "devDependencies": {
+    "cmake-js": "^6.0.0"
+  }
+}
