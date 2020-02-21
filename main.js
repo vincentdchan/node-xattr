@@ -1,4 +1,4 @@
-const { getXattrSync: __getXattrSync, setXattrSync, listXattrSync } = require('bindings')('node-xattr');
+const { getXattrSync: __getXattrSync, setXattrSync, listXattrSync, removeXattrSync } = require('bindings')('node-xattr');
 
 function getXattrSync(path, name, encoding) {
   const buffer = __getXattrSync(path, name);
@@ -12,4 +12,5 @@ module.exports = {
   getXattrSync,
   setXattrSync,
   listXattrSync,
+  removeXattrSync,
 }

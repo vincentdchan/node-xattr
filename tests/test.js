@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { setXattrSync, getXattrSync, listXattrSync } = require('../main');
+const { setXattrSync, getXattrSync, listXattrSync, removeXattrSync } = require('../main');
 const { writeFileSync, unlinkSync } = require('fs');
 
 const TestFile = '/tmp/node-attr-test-file.txt';
@@ -25,6 +25,12 @@ describe('Sync Function', () => {
   it('listXAttr', () => {
     const list = listXattrSync(TestFile);
     expect(list).to.deep.equal([TestKey]);
+  });
+
+  it('removeXAttr', () => {
+    removeXattrSync(TestFile, TestKey);
+    const list = listXattrSync(TestFile);
+    expect(list).to.deep.equal([]);
   });
 
 });

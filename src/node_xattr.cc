@@ -118,6 +118,28 @@ static Napi::Value GetXattrSync(const Napi::CallbackInfo& info) {
   return buffer;
 }
 
+static Napi::Value RemoveXattrSync(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  if (!info[0].IsString()) {
+    throw Napi::Error::New(env, "The first argument must be a string");
+  }
+
+  if (!info[1].IsString()) {
+    throw Napi::Error::New(env, "The second argument must be a string");
+  }
+
+  std::string path = info[0].As<Napi::String>().Utf8Value();
+  std::string name = info[1].As<Napi::String>().Utf8Value();
+
+  int ret = removexattr(path.c_str(), name.c_str(), 0);
+  if (ret < 0) {
+    std::string message = strerror(errno);
+    throw Napi::Error::New(env, message);
+  }
+
+  return env.Undefined();
+}
+
 static Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "listXattrSync"),
               Napi::Function::New(env, ListXattrSync));
@@ -125,6 +147,8 @@ static Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, SetXattrSync));
   exports.Set(Napi::String::New(env, "getXattrSync"),
               Napi::Function::New(env, GetXattrSync));
+  exports.Set(Napi::String::New(env, "removeXattrSync"),
+              Napi::Function::New(env, RemoveXattrSync));
   return exports;
 }
 
