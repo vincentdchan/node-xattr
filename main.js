@@ -1,4 +1,12 @@
-const { getXattrSync: __getXattrSync, getXattr: __getXattr, ...rest } = require('bindings')('node-xattr');
+const {
+  getXattrSync: __getXattrSync,
+  getXattr: __getXattr,
+  setXattr,
+  listXattr,
+  removeXattr,
+  ...rest
+} = require('bindings')('node-xattr');
+const { promisify } = require('util');
 
 function getXattrSync(path, name, encoding) {
   const buffer = __getXattrSync(path, name);
@@ -26,7 +34,7 @@ function getXattr(path, name) {
       return cb(err);
     }
 
-    if (typeof encoding !== 'string') {
+    if (typeof encoding === 'string') {
       return cb(err, data.toString(encoding));
     }
 
@@ -34,8 +42,35 @@ function getXattr(path, name) {
   });
 }
 
+function promisifyGetXattr(path, name, encoding) {
+  return new Promise((resolve, reject) => {
+    __getXattr(path, name, function (err, data) {
+      if (err) {
+        return reject(err);
+      }
+
+      if (typeof encoding === 'string') {
+        return resolve(data.toString(encoding));
+      }
+
+      return resolve(data);
+    });
+  });
+}
+
+const promises = {
+  getXattr: promisifyGetXattr,
+  setXattr: promisify(setXattr),
+  listXattr: promisify(listXattr),
+  removeXattr: promisify(removeXattr),
+};
+
 module.exports = {
   getXattrSync,
   getXattr,
+  setXattr,
+  listXattr,
+  removeXattr,
+  promises,
   ...rest,
 }

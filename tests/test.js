@@ -8,12 +8,42 @@ const {
   getXattr,
   listXattr,
   removeXattr,
+  promises,
 } = require('..');
 const { writeFileSync, unlinkSync } = require('fs');
 
 const TestFile = '/tmp/node-attr-test-file.txt';
 const TestKey = 'TestKey';
 const TestData = 'TestData';
+
+describe('Promisify Function', function() {
+
+  before(() => {
+    try {
+      unlinkSync(TestFile);
+    } catch (err) {
+      // nothing
+    }
+    writeFileSync(TestFile, 'data', 'utf8');
+  });
+
+  it('setXAttr', async function () {
+    await promises.setXattr(TestFile, TestKey, TestData);
+    expect(await promises.getXattr(TestFile, TestKey, 'utf8')).to.equal(TestData);
+  });
+
+  it('listXAttr', async function () {
+    const list = await promises.listXattr(TestFile);
+    expect(list).to.deep.equal([TestKey]);
+  });
+
+  it('removeXAttr', async function () {
+    await promises.removeXattr(TestFile, TestKey);
+    const list = await promises.listXattr(TestFile);
+    expect(list).to.deep.equal([]);
+  });
+
+});
 
 describe('Sync Function', function() {
 
@@ -60,7 +90,7 @@ describe('Async Function', () => {
   });
 
   it('getXAttr', function (done) {
-    getXattr(TestFile, TestKey, function (err, data) {
+    getXattr(TestFile, TestKey, 'utf8', function (err, data) {
       if (err) {
         return done(err);
       }

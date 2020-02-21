@@ -8,6 +8,7 @@ APIs provided by this library are similar to node's fs module.
 - [__setxattr__](#setxattr)
 - [__listxattr__](#listxattr)
 - [__removexattr__](#removexattr)
+- [__promises__](#promises)
 
 # What's xattr
 
@@ -130,4 +131,18 @@ removeXattr('./test.txt', 'key', function (err) {
     console.error(err);
   }
 });
+```
+
+# promises
+
+node-xattr support Promise API in `promises` namespace;
+
+```js
+const { promises } = require('node-xattr');
+```
+
+You can juse use Promise API just like sync veriosn above:
+
+```js
+await promises.setXattr(path, name, value);
 ```
