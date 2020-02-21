@@ -85,7 +85,7 @@ static Napi::Value SetXattrSync(const Napi::CallbackInfo& info) {
   return env.Undefined();
 }
 
-static Napi::Buffer<char> GetXattrSync(const Napi::CallbackInfo& info) {
+static Napi::Value GetXattrSync(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
   if (!info[0].IsString()) {
