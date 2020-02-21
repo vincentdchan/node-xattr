@@ -1,3 +1,4 @@
+[![npm version](https://badge.fury.io/js/node-xattr.svg)](https://badge.fury.io/js/node-xattr)
 
 # node-xattr
 

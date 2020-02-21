@@ -1,6 +1,6 @@
 {
   "name": "node-xattr",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "main.js",
   "types": "./main.d.ts",
   "author": "Zhong",
