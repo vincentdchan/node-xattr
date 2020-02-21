@@ -122,7 +122,105 @@ static Napi::Value RemoveXattrSync(const Napi::CallbackInfo& info) {
   return env.Undefined();
 }
 
+static Napi::Value AsyncSetXAttr(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  if (!info[0].IsString()) {
+    throw Napi::Error::New(env, "The first argument must be a string");
+  }
+
+  if (!info[1].IsString()) {
+    throw Napi::Error::New(env, "The second argument must be a string");
+  }
+
+  std::vector<char> buffer;
+
+  std::string path = info[0].As<Napi::String>().Utf8Value();
+  std::string name = info[1].As<Napi::String>().Utf8Value();
+
+  if (info[2].IsString()) {
+    std::string str = info[2].As<Napi::String>().Utf8Value();
+    buffer.resize(str.size());
+    memcpy(buffer.data(), str.c_str(), str.size());
+  } else if (info[2].IsBuffer()) {
+    Napi::Buffer<char> temp_buffer = info[2].As<Napi::Buffer<char>>();
+    buffer.resize(temp_buffer.Length());
+    memcpy(buffer.data(), temp_buffer.Data(), temp_buffer.Length());
+  } else {
+    throw Napi::Error::New(env, "The second argument must be either a string or a buffer");
+  }
+
+  Napi::Function cb = info[3].As<Napi::Function>();
+
+  auto worker = new SetXAttrWorker(cb, path, name, buffer);
+  worker->Queue();
+
+  return env.Undefined();
+}
+
+static Napi::Value AsyncGetXAttr(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  if (!info[0].IsString()) {
+    throw Napi::Error::New(env, "The first argument must be a string");
+  }
+
+  if (!info[1].IsString()) {
+    throw Napi::Error::New(env, "The second argument must be a string");
+  }
+
+  std::string path = info[0].As<Napi::String>().Utf8Value();
+  std::string name = info[1].As<Napi::String>().Utf8Value();
+
+  Napi::Function cb = info[2].As<Napi::Function>();
+
+  auto worker = new GetXAttrWorker(cb, path, name);
+  worker->Queue();
+
+  return env.Undefined();
+}
+
+static Napi::Value AsyncRemoveXAttr(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  if (!info[0].IsString()) {
+    throw Napi::Error::New(env, "The first argument must be a string");
+  }
+
+  if (!info[1].IsString()) {
+    throw Napi::Error::New(env, "The second argument must be a string");
+  }
+
+  std::string path = info[0].As<Napi::String>().Utf8Value();
+  std::string name = info[1].As<Napi::String>().Utf8Value();
+
+  Napi::Function cb = info[2].As<Napi::Function>();
+
+  auto worker = new RemoveXAttrWorker(cb, path, name);
+  worker->Queue();
+
+  return env.Undefined();
+}
+
+static Napi::Value AsyncListXAttr(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  if (!info[0].IsString()) {
+    throw Napi::Error::New(env, "The first argument must be a string");
+  }
+
+  std::string path = info[0].As<Napi::String>().Utf8Value();
+
+  Napi::Function cb = info[1].As<Napi::Function>();
+
+  auto worker = new ListXAttrWorker(cb, path);
+  worker->Queue();
+
+  return env.Undefined();
+}
+
 static Napi::Object Init(Napi::Env env, Napi::Object exports) {
+  // sync
   exports.Set(Napi::String::New(env, "listXattrSync"),
               Napi::Function::New(env, ListXattrSync));
   exports.Set(Napi::String::New(env, "setXattrSync"),
@@ -131,6 +229,16 @@ static Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, GetXattrSync));
   exports.Set(Napi::String::New(env, "removeXattrSync"),
               Napi::Function::New(env, RemoveXattrSync));
+
+  // async
+  exports.Set(Napi::String::New(env, "setXattr"),
+              Napi::Function::New(env, AsyncSetXAttr));
+  exports.Set(Napi::String::New(env, "getXattr"),
+              Napi::Function::New(env, AsyncGetXAttr));
+  exports.Set(Napi::String::New(env, "removeXattr"),
+              Napi::Function::New(env, AsyncRemoveXAttr));
+  exports.Set(Napi::String::New(env, "listXattr"),
+              Napi::Function::New(env, AsyncListXAttr));
   return exports;
 }
 
