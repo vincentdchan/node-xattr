@@ -5,6 +5,8 @@ set (CMAKE_CXX_STANDARD 11)
 project (node-xattr)
 include_directories(${CMAKE_JS_INC})
 file(GLOB SOURCE_FILES
+  "src/mac_utils.h"
+  "src/workers.h"
   "src/node_xattr.cc"
 )
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})

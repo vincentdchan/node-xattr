@@ -1,8 +1,8 @@
 #include <napi.h>
 #include <vector>
-#include <cstdlib>
-#include <cstring>
-#include <sys/xattr.h>
+
+#include "mac_utils.h"
+#include "workers.h"
 
 static Napi::Array ListXattrSync(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
@@ -19,26 +19,18 @@ static Napi::Array ListXattrSync(const Napi::CallbackInfo& info) {
     throw Napi::Error::New(env, message);
   }
 
-  Napi::Array result = Napi::Array::New(env);
+  std::vector<std::string> temp_result;
+  std::string error_msg;
 
-  std::vector<char> buffer;
-  buffer.resize(buffer_size);
-  char* buffer_ptr = buffer.data();
-
-  ssize_t ret = listxattr(path.c_str(), buffer_ptr, buffer_size, 0);
-  if (ret < 0) {
-    std::string message = strerror(errno);
-    throw Napi::Error::New(env, message);
+  if (!utils::ListXAttr(path, temp_result, error_msg)) {
+    throw Napi::Error::New(env, error_msg);
   }
 
-  int counter = 0;
-  ssize_t index = 0;
-  while (index < buffer_size) {
-    size_t str_len = strlen(buffer_ptr + index);
-    Napi::String name = Napi::String::New(env, buffer_ptr + index, str_len);
-    result[counter++] = name;
+  Napi::Array result = Napi::Array::New(env);
 
-    index += str_len + 1;
+  for (std::size_t i = 0; i < temp_result.size(); i++) {
+    const auto& item_name = temp_result[i];
+    result[i] = Napi::String::New(env, item_name);
   }
 
   return result;
@@ -76,10 +68,9 @@ static Napi::Value SetXattrSync(const Napi::CallbackInfo& info) {
     throw Napi::Error::New(env, "The second argument must be either a string or a buffer");
   }
 
-  int ret = setxattr(path.c_str(), name.c_str(), buffer_ptr, buffer_size, 0, 0);
-  if (ret < 0) {
-    std::string message = strerror(errno);
-    throw Napi::Error::New(env, message);
+  std::string error_msg;
+  if (!utils::SetXAttr(path.c_str(), name.c_str(), buffer_ptr, buffer_size, error_msg)) {
+    throw Napi::Error::New(env, error_msg);
   }
 
   return env.Undefined();
@@ -99,21 +90,13 @@ static Napi::Value GetXattrSync(const Napi::CallbackInfo& info) {
   std::string path = info[0].As<Napi::String>().Utf8Value();
   std::string name = info[1].As<Napi::String>().Utf8Value();
 
-  ssize_t buffer_size = getxattr(path.c_str(), name.c_str(), nullptr, 0, 0, 0);
-
-  if (buffer_size < 0) {
-    std::string message = strerror(errno);
-    throw Napi::Error::New(env, message);
+  std::vector<char> temp_buffer;
+  std::string error_msg;
+  if (!utils::GetXAttr(path, name, temp_buffer, error_msg)) {
+    throw Napi::Error::New(env, error_msg);
   }
 
-  Napi::Buffer<char> buffer = Napi::Buffer<char>::New(env, buffer_size);
-
-  ssize_t receive_size = getxattr(path.c_str(), name.c_str(), buffer.Data(), buffer_size, 0, 0);
-  
-  if (buffer_size < 0) {
-    std::string message = strerror(errno);
-    throw Napi::Error::New(env, message);
-  }
+  Napi::Buffer<char> buffer = Napi::Buffer<char>::Copy(env, temp_buffer.data(), temp_buffer.size());
 
   return buffer;
 }
@@ -130,11 +113,10 @@ static Napi::Value RemoveXattrSync(const Napi::CallbackInfo& info) {
 
   std::string path = info[0].As<Napi::String>().Utf8Value();
   std::string name = info[1].As<Napi::String>().Utf8Value();
+  std::string error_msg;
 
-  int ret = removexattr(path.c_str(), name.c_str(), 0);
-  if (ret < 0) {
-    std::string message = strerror(errno);
-    throw Napi::Error::New(env, message);
+  if (!utils::RemoveXAttr(path, name, error_msg)) {
+    throw Napi::Error::New(env, error_msg);
   }
 
   return env.Undefined();
