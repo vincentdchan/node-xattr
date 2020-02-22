@@ -8,8 +8,10 @@ const {
   getXattr,
   listXattr,
   removeXattr,
+  macUtils,
 } = require('..');
 const { writeFileSync, unlinkSync } = require('fs');
+const { join } = require('path');
 
 const TestFile = '/tmp/node-attr-test-file.txt';
 const TestKey = 'TestKey';
@@ -69,6 +71,28 @@ describe('Sync Function', function() {
     removeXattrSync(TestFile, TestKey);
     const list = listXattrSync(TestFile);
     expect(list).to.deep.equal([]);
+  });
+
+});
+
+describe('setCustomIcon', function() {
+  beforeEach(() => {
+    try {
+      unlinkSync(TestFile);
+    } catch (err) {
+      // nothing
+    }
+    writeFileSync(TestFile, 'data', 'utf8');
+  });
+
+  const iconPath = join(__dirname, 'spider-man.icns');
+
+  it('setCustomIcon', function() {
+    macUtils.setCustomIconSync(TestFile, iconPath);
+  });
+
+  it('setCustomIconAsync', async function() {
+    await macUtils.setCustomIcon(TestFile, iconPath);
   });
 
 });

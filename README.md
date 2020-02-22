@@ -5,14 +5,19 @@
 A library to manipulate xattr on macOS with Typescript support.
 APIs provided by this library are similar to node's fs module.
 
-- [__getxattr__](#getxattr)
-- [__setxattr__](#setxattr)
-- [__listxattr__](#listxattr)
-- [__removexattr__](#removexattr)
+- [**Get xattr**](#get-xattr)
+- [**Set xattr**](#set-xattr)
+- [**List xattr**](#list-xattr)
+- [**Remove xattr**](#remove-xattr)
+- [**Set Custom Icon For File**](#set-custom-icon)
 
 # What's xattr
 
 > Extended attributes are arbitrary metadata stored with a file, but separate from the filesystem attributes (such as modification time or file size). The metadata is often a null-terminated UTF-8 string, but can also be arbitrary binary data.
+
+With xattr, you can store your own data as attributes to file. Also, you can pass data to Finder or other apps. It's a mechanism provided by the system. Such as setting a custom icon for a file:
+
+![](./custom-icon-screenshot.png)
 
 # Install
 
@@ -28,7 +33,7 @@ The disadvantage of the sync version is that it will probably block the process.
 some UI process(such as the renderer process of Electron).
 The best scenario to use sync version is in background worker/process/thread.
 
-# setxattr
+# Set xattr
 
 ```
 setXattrSync(path: string, name: string, value: string | Buffer): void;
@@ -36,20 +41,20 @@ setXattrSync(path: string, name: string, value: string | Buffer): void;
 setXattr(path: string, name: string, value: string | Buffer): Promise<void>;
 ```
 
-Sync version
+Sync
 ```js
 const { setXattrSync } = require('node-xattr');
 setXattrSync('./test.txt', 'key', 'value');
 ```
 
-Async version
+Async
 ```js
 const { setXattr } = require('node-xattr');
 
 setXattr('./test.txt', 'key', 'value').catch(err => console.error(err));
 ```
 
-# getxattr
+# Get xattr
 
 ```
 getXattrSync(path: string, name: string): Buffer;
@@ -61,7 +66,7 @@ getXattr(path: string, name: string): Promise<Buffer>;
 getXattr(path: string, name: string, encoding: string): Promise<string>;
 ```
 
-Sync Version
+Sync
 ```js
 const { getXattrSync } = require('node-xattr');
 const buffer = getXattrSync('./test.txt', 'key');
@@ -69,7 +74,7 @@ const string = getXattrSync('./test.txt', 'key', 'utf8');
 ```
 
 
-Async Version
+Async
 ```js
 const { getXattr } = require('node-xattr');
 
@@ -86,7 +91,7 @@ getXattr('./test.txt', 'key').then(buffer => console.log(buffer)).catch(err => c
 getXattr('./test.txt', 'key', 'utf8').then(str => console.log(str)).catch(err => console.error(err));
 ```
 
-# listxattr
+# List xattr
 
 ```
 listXattrSync(path: string): string[];
@@ -94,21 +99,21 @@ listXattrSync(path: string): string[];
 listXattr(path: string): Promise<string[]>;
 ```
 
-Sync Version:
+Sync
 ```js
 const { listXattrSync } = require('node-xattr');
 
 const list = listXattrSync('./test.txt');
 ```
 
-Async Version:
+Async
 ```js
 const { listXattr } = require('node-xattr');
 
 listXattr('./test.txt').then(list => console.log(list)).catch(err => console.error(err));
 ```
 
-# removexattr
+# Remove xattr
 
 ```
 removeXattrSync(path: string, name: string): void;
@@ -116,14 +121,36 @@ removeXattrSync(path: string, name: string): void;
 removeXattr(path: string, name: string): Promise<void>;
 ```
 
-SyncVersion
+Sync
 ```js
 const { removeXattrSync } = require('node-xattr');
 removeXattrSync('./test.txt', 'key');
 ```
 
-Async verion:
+Async
 ```js
 const { removeXattr } = require('node-xattr');
 removeXattr('./test.txt', 'key').catch(err => console.error(err));
+```
+
+# Set Custom Icon
+
+`setCustomIcon` are in `macUtils` namespace;
+
+```
+setCustomIcon(filePath: string, iconPath: string): Promise<void>;
+setCustomIconSync(filePath: string, iconPath: string): void;
+```
+
+Sync
+```js
+const { macUtils } = require('node-xattr');
+
+macUtils.setCustomIconSync(TestFile, iconPath);
+```
+
+Async
+```js
+const { macUtils } = require('node-xattr');
+macUtils.setCustomIcon(TestFile, iconPath).catch(err => console.log(err));
 ```

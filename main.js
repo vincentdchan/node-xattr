@@ -4,6 +4,8 @@ const {
   setXattr: __setXattr,
   listXattr: __listXattr,
   removeXattr: __removeXattr,
+  setCustomIcon: __setCustomIcon,
+  setCustomIconSync,
   ...rest
 } = require('bindings')('node-xattr');
 const { promisify } = require('util');
@@ -37,11 +39,17 @@ const setXattr = promisify(__setXattr);
 const listXattr = promisify(__listXattr);
 const removeXattr = promisify(__removeXattr);
 
+const macUtils = {
+  setCustomIconSync,
+  setCustomIcon: promisify(__setCustomIcon),
+};
+
 module.exports = {
   getXattrSync,
   getXattr,
   setXattr,
   listXattr,
   removeXattr,
+  macUtils,
   ...rest,
 }

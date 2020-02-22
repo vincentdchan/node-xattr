@@ -20,3 +20,9 @@ export function setXattr(path: string, name: string, value: string | Buffer): Pr
 export function listXattr(path: string): Promise<string[]>;
 
 export function removeXattr(path: string, name: string): Promise<void>;
+
+namespace macUtils {
+  export function setCustomIcon(filePath: string, iconPath: string): Promise<void>;
+  export function setCustomIconSync(filePath: string, iconPath: string): void;
+
+}
