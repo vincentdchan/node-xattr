@@ -9,7 +9,6 @@ APIs provided by this library are similar to node's fs module.
 - [__setxattr__](#setxattr)
 - [__listxattr__](#listxattr)
 - [__removexattr__](#removexattr)
-- [__promises__](#promises)
 
 # What's xattr
 
@@ -31,9 +30,11 @@ The best scenario to use sync version is in background worker/process/thread.
 
 # setxattr
 
-`setXattrSync(path, name, value)`
+```
+setXattrSync(path: string, name: string, value: string | Buffer): void;
 
-`setXattr(path, name, value, callback)`
+setXattr(path: string, name: string, value: string | Buffer): Promise<void>;
+```
 
 Sync version
 ```js
@@ -44,22 +45,21 @@ setXattrSync('./test.txt', 'key', 'value');
 Async version
 ```js
 const { setXattr } = require('node-xattr');
-setXattr('./test.txt', 'key', 'value', function (err) {
-  if (err) {
-    console.error(err);
-  }
-});
+
+setXattr('./test.txt', 'key', 'value').catch(err => console.error(err));
 ```
 
 # getxattr
 
-`getXattrSync(path, name)` returns buffer
+```
+getXattrSync(path: string, name: string): Buffer;
 
-`getXattrSync(path, name, encoding)` returns string
+getXattrSync(path: string, name: string, encoding: string): string;
 
-`getXattr(path, name, callback)` returns buffer
+getXattr(path: string, name: string): Promise<Buffer>;
 
-`getXattr(path, name, encoding, callback)` returns string
+getXattr(path: string, name: string, encoding: string): Promise<string>;
+```
 
 Sync Version
 ```js
@@ -81,44 +81,40 @@ getXattr('./test.txt', 'key', function (err, buffer) {
   console.log(buffer);
 });
 
-getXattr('./test.txt', 'key', 'utf8', function (err, string) {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log(string);
-});
+getXattr('./test.txt', 'key').then(buffer => console.log(buffer)).catch(err => console.error(err));
+
+getXattr('./test.txt', 'key', 'utf8').then(str => console.log(str)).catch(err => console.error(err));
 ```
 
 # listxattr
 
-`listXattrSync(path)`
+```
+listXattrSync(path: string): string[];
 
-`listXattr(path, callback)`
+listXattr(path: string): Promise<string[]>;
+```
 
 Sync Version:
 ```js
 const { listXattrSync } = require('node-xattr');
+
 const list = listXattrSync('./test.txt');
 ```
 
 Async Version:
 ```js
 const { listXattr } = require('node-xattr');
-listXattrSync('./test.txt', function (err, list) {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log(list);
-});
+
+listXattr('./test.txt').then(list => console.log(list)).catch(err => console.error(err));
 ```
 
 # removexattr
 
-`removeXattrSync(path, name)`
+```
+removeXattrSync(path: string, name: string): void;
 
-`removeXattr(path, name, callback)`
+removeXattr(path: string, name: string): Promise<void>;
+```
 
 SyncVersion
 ```js
@@ -129,23 +125,5 @@ removeXattrSync('./test.txt', 'key');
 Async verion:
 ```js
 const { removeXattr } = require('node-xattr');
-removeXattr('./test.txt', 'key', function (err) {
-  if (err) {
-    console.error(err);
-  }
-});
-```
-
-# promises
-
-node-xattr support Promise API in `promises` namespace;
-
-```js
-const { promises } = require('node-xattr');
-```
-
-You can just use Promise API just like sync version above:
-
-```js
-await promises.setXattr(path, name, value);
+removeXattr('./test.txt', 'key').catch(err => console.error(err));
 ```

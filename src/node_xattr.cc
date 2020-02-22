@@ -219,6 +219,49 @@ static Napi::Value AsyncListXAttr(const Napi::CallbackInfo& info) {
   return env.Undefined();
 }
 
+static Napi::Value SetCustomIconForFileSync(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  if (!info[0].IsString()) {
+    throw Napi::Error::New(env, "The first argument must be a string");
+  }
+
+  if (!info[1].IsString()) {
+    throw Napi::Error::New(env, "The second argument must be a string");
+  }
+
+  std::string file_path = info[0].As<Napi::String>().Utf8Value();
+  std::string icon_path = info[1].As<Napi::String>().Utf8Value();
+  std::string error_msg;
+
+  if (!utils::SetCustomIconForFile(file_path, icon_path, error_msg)) {
+    throw Napi::Error::New(env, error_msg);
+  }
+
+  return env.Undefined();
+}
+
+static Napi::Value SetCustomIconForFileAsync(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  if (!info[0].IsString()) {
+    throw Napi::Error::New(env, "The first argument must be a string");
+  }
+
+  if (!info[1].IsString()) {
+    throw Napi::Error::New(env, "The second argument must be a string");
+  }
+
+  std::string file_path = info[0].As<Napi::String>().Utf8Value();
+  std::string icon_path = info[1].As<Napi::String>().Utf8Value();
+  Napi::Function cb = info[2].As<Napi::Function>();
+
+  auto worker = new SetCustomIconForFileWorker(cb, file_path, icon_path);
+  worker->Queue();
+
+  return env.Undefined();
+}
+
 static Napi::Object Init(Napi::Env env, Napi::Object exports) {
   // sync
   exports.Set(Napi::String::New(env, "listXattrSync"),
@@ -239,6 +282,13 @@ static Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, AsyncRemoveXAttr));
   exports.Set(Napi::String::New(env, "listXattr"),
               Napi::Function::New(env, AsyncListXAttr));
+
+  // custom icon
+  exports.Set(Napi::String::New(env, "setCustomIconSync"),
+              Napi::Function::New(env, SetCustomIconForFileSync));
+  exports.Set(Napi::String::New(env, "setCustomIcon"),
+              Napi::Function::New(env, SetCustomIconForFileAsync));
+
   return exports;
 }
 

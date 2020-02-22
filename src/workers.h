@@ -105,3 +105,26 @@ private:
   std::vector<std::string> result_;
 
 };
+
+class SetCustomIconForFileWorker : public Napi::AsyncWorker {
+public:
+  SetCustomIconForFileWorker(Napi::Function& callback, std::string file_path, std::string icon_path)
+  : AsyncWorker(callback), file_path_(std::move(file_path)), icon_path_(icon_path) {}
+
+  void Execute() override {
+    std::string error_msg;
+    if (!utils::SetCustomIconForFile(file_path_, icon_path_, error_msg)) {
+      SetError(error_msg);
+    }
+  }
+
+  void OnOK() override {
+    Napi::HandleScope scope(Env());
+    Callback().Call({});
+  }
+
+private:
+  std::string file_path_;
+  std::string icon_path_;
+
+};
