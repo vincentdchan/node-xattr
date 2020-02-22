@@ -5,6 +5,9 @@
 A library to manipulate xattr on macOS with Typescript support.
 APIs provided by this library are similar to node's fs module.
 
+- [**Requirements**](#requirements)
+- [**Installation**](#installation)
+- [**When to use the sync version**](#when-to-use-the-sync-version)
 - [**Get xattr**](#get-xattr)
 - [**Set xattr**](#set-xattr)
 - [**List xattr**](#list-xattr)
@@ -15,11 +18,24 @@ APIs provided by this library are similar to node's fs module.
 
 > Extended attributes are arbitrary metadata stored with a file, but separate from the filesystem attributes (such as modification time or file size). The metadata is often a null-terminated UTF-8 string, but can also be arbitrary binary data.
 
-With xattr, you can store your own data as attributes to file. Also, you can pass data to Finder or other apps. It's a mechanism provided by the system. Such as setting a custom icon for a file:
+Xattr is a mechanism provided by the system.
+With xattr, you can store your own data as attributes to file. Also, you can pass data to Finder or other apps.
+
+For example, you can set custom icon for a file:
 
 ![](./custom-icon-screenshot.png)
 
-# Install
+# Requirements
+
+Runtime
+
+- Node.js v10+ (Electron with Node.js 10+ works)
+
+Development
+
+- macOS 10.14+ with XCode
+
+# Installation
 
 ```sh
 $ yarn add node-xattr
@@ -28,7 +44,7 @@ $ yarn add node-xattr
 # When to use the sync version
 
 Technically, the sync version would be a little faster. Because the async version waits for a queue to schedule.
-Also, it's realtime.
+Also, The sync verion is realtime, it would be an advantage in some scenario.
 The disadvantage of the sync version is that it will probably block the process. So DO NOT use sync version in 
 some UI process(such as the renderer process of Electron).
 The best scenario to use sync version is in background worker/process/thread.
