@@ -143,4 +143,54 @@ bool SetCustomIconForFile(const std::string& file_path, const std::string& icon_
   return true;
 }
 
+std::vector<char> SerializeArrayOfString(const std::vector<std::string>& content) {
+  NSMutableArray *array = [NSMutableArray arrayWithCapacity:content.size()];
+
+  std::vector<char> result;
+
+  for (const auto& item : content) {
+    NSString* content = [NSString stringWithUTF8String:item.c_str()];
+    [array addObject:content];
+  }
+
+  NSError *error;
+  NSData *data = [NSPropertyListSerialization
+    dataWithPropertyList:array
+    format:NSPropertyListBinaryFormat_v1_0
+    options:0 error:&error
+  ];;
+  NSUInteger dataSize = [data length];
+
+  result.resize(dataSize);
+  memcpy(result.data(), [data bytes], dataSize);
+
+  return result;
+}
+
+std::vector<std::string> DeserializeArrayOfString(const char* value, std::size_t size) {
+  std::vector<std::string> result;
+
+  NSData* nsData = [NSData dataWithBytes:value length:size];
+
+  NSError* error;
+  NSArray* array = [NSPropertyListSerialization
+    propertyListWithData:nsData
+    options:NSPropertyListImmutable
+    format:NULL error:&error
+  ]; 
+
+  for (NSUInteger i = 0; i < [array count]; i++) {
+    NSObject* obj = [array objectAtIndex:i];
+    NSString* str = (NSString*)obj;
+    if (str == nil) {
+      return result;
+    }
+
+    std::string item = std::string([str UTF8String]);
+    result.push_back(std::move(item));
+  }
+
+  return result;
+}
+
 }

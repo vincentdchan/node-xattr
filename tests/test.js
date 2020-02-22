@@ -96,3 +96,26 @@ describe('setCustomIcon', function() {
   });
 
 });
+
+describe('serializeArrayOfString', function () {
+  
+  const content = [
+    'abc',
+    'ced',
+    'ofg',
+  ];
+
+  it('serailize', function () {
+    const buffer = macUtils.serializeArrayOfString(content);
+    const reverse = macUtils.deserializeArrayOfString(buffer);
+    expect(reverse).to.deep.equals(content);
+  });
+
+  it('de', function () {
+    const buffer = macUtils.serializeArrayOfString([
+      'https://diverse.space/'
+    ]);
+    setXattrSync('/Users/duzhongchen/Downloads/node-v13.9.0.pkg', 'com.apple.metadata:kMDItemWhereFroms', buffer);
+  });
+
+});

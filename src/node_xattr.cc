@@ -262,6 +262,43 @@ static Napi::Value SetCustomIconForFileAsync(const Napi::CallbackInfo& info) {
   return env.Undefined();
 }
 
+static Napi::Buffer<char> MacSerializeArrayOfString(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  Napi::Array arr = info[0].As<Napi::Array>();
+
+  std::vector<std::string> params;
+  for (std::size_t i = 0; i < arr.Length(); i++) {
+    Napi::String item = arr.Get(i).As<Napi::String>();
+    std::string param_item = item.Utf8Value();
+    params.push_back(std::move(param_item));
+  }
+
+  auto buffer = utils::SerializeArrayOfString(params);
+
+  Napi::Buffer<char> result = Napi::Buffer<char>::Copy(env, buffer.data(), buffer.size());
+
+  return result;
+}
+
+static Napi::Array MacDeserializeArrayOfString(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+
+  Napi::Buffer<char> buffer = info[0].As<Napi::Buffer<char>>();
+
+  auto result = utils::DeserializeArrayOfString(buffer.Data(), buffer.ByteLength());
+
+  Napi::Array arr = Napi::Array::New(env);
+
+  std::size_t counter = 0;
+  for (const auto& item : result) {
+    Napi::String str_item = Napi::String::New(env, item.c_str(), item.size());
+    arr[counter++] = str_item;
+  }
+
+  return arr;
+}
+
 static Napi::Object Init(Napi::Env env, Napi::Object exports) {
   // sync
   exports.Set(Napi::String::New(env, "listXattrSync"),
@@ -288,6 +325,12 @@ static Napi::Object Init(Napi::Env env, Napi::Object exports) {
               Napi::Function::New(env, SetCustomIconForFileSync));
   exports.Set(Napi::String::New(env, "setCustomIcon"),
               Napi::Function::New(env, SetCustomIconForFileAsync));
+
+  // mac utils
+  exports.Set(Napi::String::New(env, "serializeArrayOfString"),
+              Napi::Function::New(env, MacSerializeArrayOfString));
+  exports.Set(Napi::String::New(env, "deserializeArrayOfString"),
+              Napi::Function::New(env, MacDeserializeArrayOfString));
 
   return exports;
 }

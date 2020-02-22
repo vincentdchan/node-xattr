@@ -25,4 +25,7 @@ namespace macUtils {
   export function setCustomIcon(filePath: string, iconPath: string): Promise<void>;
   export function setCustomIconSync(filePath: string, iconPath: string): void;
 
+  export function serializeArrayOfString(content: string[]): Buffer;
+  export function deserializeArrayOfString(buffer: Buffer): string[];
+
 }

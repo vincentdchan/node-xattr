@@ -24,4 +24,8 @@ bool GetCustomIconXattrBuffer(const std::string& iconPath, std::vector<char>&);
 
 bool SetCustomIconForFile(const std::string& file_path, const std::string& icon_path, std::string& error_msg);
 
+std::vector<char> SerializeArrayOfString(const std::vector<std::string>& content);
+
+std::vector<std::string> DeserializeArrayOfString(const char* value, std::size_t size);
+
 }
